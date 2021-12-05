@@ -16,6 +16,7 @@ export class TodosAccess{
     ){}
 
     async getUserTodos(userId: string): Promise<TodoItem[]>{
+        logger.info(`Step 1 GetUserTodos.... ${userId}`)
         const result = await this.docClient.query({
             TableName: this.todosTable,
             IndexName: this.userIdIndex,

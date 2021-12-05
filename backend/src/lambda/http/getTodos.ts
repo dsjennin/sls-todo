@@ -11,17 +11,17 @@ import { createLogger } from '../../utils/logger'
 //import { getUserId } from '../utils';
 
 // TODO: Get all TODO items for a current user
-const logger = createLogger('auth')
+const logger = createLogger('getToDos')
 
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // Write your code here
-    logger.info('Get current user', event)
+   
     const authorization = event.headers.Authorization
     const split = authorization.split(' ')
     const jwtToken = split[1]
     const item = await getTodos(jwtToken)
-  
+    logger.info(`Get all TODO items for current user.... ${JSON.stringify(item)}`)
     return {
       statusCode: 200,
       headers: {

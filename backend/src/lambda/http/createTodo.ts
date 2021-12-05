@@ -11,7 +11,7 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
 
     logger.info('create event', { event })  
-
+    console.log('createTodo : event: ' + event)
     
   const createNew: CreateTodoRequest = JSON.parse(event.body)
   const authorization = event.headers.Authorization

@@ -24,7 +24,7 @@ export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const todoId = event.pathParameters.todoId
     // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
-    logger.info('generateUrl event creation', { event })
+  
     const imaId = uuid.v4()
     const authorization = event.headers.Authorization
     const split = authorization.split(' ')
@@ -36,6 +36,8 @@ export const handler = middy(
         jwtToken
     )
     const uploadUrl = getUploadUrl(imaId)
+
+    logger.info(`Genreate Upload Url:  ${JSON.stringify(uploadUrl)}`)
     return {
       statusCode: 200,
       body: JSON.stringify({

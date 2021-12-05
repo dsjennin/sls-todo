@@ -3,9 +3,9 @@ import { TodosAccess } from '../dataLayer/todosAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
 import { parseUserId } from '../auth/utils'
-// import { createLogger } from '../utils/logger'
+import { createLogger } from '../utils/logger'
 
-//const logger = createLogger('auth')
+const logger = createLogger('todos')
 
 const todosAccess = new TodosAccess()
 
@@ -13,6 +13,7 @@ const todosAccess = new TodosAccess()
 
 
 export async function getTodos(userId: string): Promise<TodoItem[]> {
+  logger.info(` GetTodos.... ${userId}`)
   return await todosAccess.getUserTodos(userId)
 }
 
