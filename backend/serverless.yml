@@ -60,8 +60,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example,
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: todosInfoTable-${self:provider.stage}
+    TODOS_TABLE: todos-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
+    USER_ID_INDEX: UserIdIndex
     IMAGES_BUCKET: todos-dsj-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_JWKS_URL: https://bintech-dev.us.auth0.com/.well-known/jwks.json
@@ -295,19 +296,17 @@ resources:
           - AttributeName: userId
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
-            KeyType: HASH
           - AttributeName: todoId
+            KeyType: HASH
+          - AttributeName: createdAt
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
         GlobalSecondaryIndexes:
-          - IndexName: ${self:provider.environment.TODOS_CREATED_AT_INDEX}
+          - IndexName: ${self:provider.environment.USER_ID_INDEX}
             KeySchema:
               - AttributeName: userId
                 KeyType: HASH
-              - AttributeName: createdAt
-                KeyType: RANGE
             Projection:
               ProjectionType: ALL
 

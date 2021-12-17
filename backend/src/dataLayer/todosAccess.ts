@@ -1,12 +1,14 @@
 import { TodoItem } from '../models/TodoItem';
+import { TodoUpdate } from  '../models/TodoUpdate'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
-import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
+//import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 import { createLogger } from '../utils/logger'
 const uuid = require('uuid/v4')
 import * as AWS from 'aws-sdk'
 
 
 const logger = createLogger('todosDataAccess');
+
 
 export class TodosAccess{
     constructor(
@@ -57,50 +59,145 @@ export class TodosAccess{
         }).promise()
     }
 
-    async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string, userId:string){
-	logger.info(`Updating a todo todoid = ${todoId} `);
-	logger.info(`Updating a todo user = ${userId} `);
-        await this.docClient.update({
-            TableName: this.todosTable,
-            Key:{
-                todoId: todoId,
-		userId: userId
-            },
-            UpdateExpression: 'set #namefield = :n, dueDate = :d, done = :done',
-            ExpressionAttributeValues: {
-                ':n' : updatedTodo.name,
-                ':d' : updatedTodo.dueDate,
-                ':done' : updatedTodo.done
-            },
-            ExpressionAttributeNames:{
-                "#namefield": "name"
-              }
-          }).promise()
-    }    
 
-    async deleteTodo(userId:string, todoId:string) {	
-       await this.docClient.delete({
-            TableName: this.todosTable,
-            Key: {
-	       userId: userId,
-               todoId: todoId
-            }
-       }).promise()
-    }
-    async updateTodoUrl(todoId: string, userId: string, attachmentUrl: string): Promise<void> {
-        logger.info(`URL change by ${todoId}`)
-    
-        await this.docClient.update({
-          TableName: this.todosTable,
-          Key: {
-            todoId,
-            userId
+    async updateTodo(todoId: string, updatedTodo: TodoUpdate): Promise<TodoUpdate>{
+        const paramsGet = {
+          TableName: process.env.TODOS_TABLE,
+          KeyConditionExpression: 'todoId = :todoIddelete',
+          ExpressionAttributeValues: {
+            ':todoIddelete': todoId,
+          }
+        }
+        const todo = await this.docClient.query(paramsGet).promise()
+      
+        var params = {
+          TableName: process.env.TODOS_TABLE,
+          Key: { 
+            todoId : todoId, 
+            createdAt: todo.Items[0].createdAt 
           },
-          UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+          UpdateExpression: 'set #name = :updatedName, #dueDate = :updatedDueDate, #done = :updatedDone',
+          ExpressionAttributeNames: {'#name' : 'name', '#dueDate': 'dueDate', '#done': 'done'},
+          ExpressionAttributeValues: {
+            ':updatedName' : updatedTodo.name,
+            ':updatedDueDate' : updatedTodo.dueDate,
+            ':updatedDone' : updatedTodo.done,
+          }
+        };
+        await this.docClient.update(params).promise();
+    
+    return updatedTodo
+  }
+
+    // async updateTodo(updatedTodo:UpdateTodoRequest,todoId:string){
+	// logger.info(`Updating a todo todoid = ${todoId} `);
+	//  logger.info(`Updating a todo user = ${userId} `);
+    //     await this.docClient.update({
+    //         TableName: this.todosTable,
+    //         Key:{
+    //             todoId: todoId,
+	// 	userId: userId
+    //         },
+    //         UpdateExpression: 'set #namefield = :n, dueDate = :d, done = :done',
+    //         ExpressionAttributeValues: {
+    //             ':n' : updatedTodo.name,
+    //             ':d' : updatedTodo.dueDate,
+    //             ':done' : updatedTodo.done
+    //         },
+    //         ExpressionAttributeNames:{
+    //             "#namefield": "name"
+    //           }
+    //       }).promise()
+    // }  
+    
+    async deleteTodo(todoId : string): Promise<any> {
+        // First find the createdAt field for the todo, since it is part of the composite key
+        const paramsGet = {
+          TableName: process.env.TODOS_TABLE,
+          KeyConditionExpression: 'todoId = :todoIddelete',
+          ExpressionAttributeValues: {
+            ':todoIddelete': todoId,
+          }
+        }
+        const todo = await this.docClient.query(paramsGet).promise()
+        logger.info('get todo', todo)
+    
+        const paramsDelete = {
+          TableName : process.env.TODOS_TABLE,
+          Key: {
+            todoId: todoId,
+            createdAt: todo.Items[0].createdAt
+          }
+        };
+        
+        await this.docClient.delete(paramsDelete).promise()
+        logger.info('deleted todo', todo)
+        return todo
+      }
+    
+
+
+
+    // async deleteTodo(userId:string, todoId:string) {	
+    //    await this.docClient.delete({
+    //         TableName: this.todosTable,
+    //         Key: {
+	//        userId: userId,
+    //            todoId: todoId
+    //         }
+    //    }).promise()
+    // }
+
+
+
+    
+    // async updateTodoUrl(todoId: string,  attachmentUrl: string): Promise<void> {
+    //     //logger.info(`URL change by ${todoId}`)
+    //     //logger.info(`Updating a todo user = ${userId} `);
+    
+    //     await this.docClient.update({
+    //       TableName: this.todosTable,
+    //       Key: {
+    //         todoId
+    //       },
+    //       UpdateExpression: 'set attachmentUrl = :attachmentUrl',
+    //       ExpressionAttributeValues: {
+    //         ':attachmentUrl': attachmentUrl
+    //       },
+    //       ReturnValues: 'UPDATED_NEW'
+    //     }).promise()
+    //   }
+
+      async updateTodoUrl(todoId: string,  attachmentUrl: string): Promise<void> {
+        //logger.info(`URL change by ${todoId}`)
+        //logger.info(`Updating a todo user = ${userId} `);
+
+        const paramsGet = {
+            TableName: process.env.TODOS_TABLE,
+            KeyConditionExpression: 'todoId = :toUpdate',
+            ExpressionAttributeValues: {
+              ':toUpdate': todoId,
+            }
+          }
+          const todo = await this.docClient.query(paramsGet).promise()
+          logger.info('get todo', todo)
+
+          var params = {
+            TableName: process.env.TODOS_TABLE,
+            Key: { 
+              todoId : todoId, 
+              createdAt: todo.Items[0].createdAt 
+            },
+            UpdateExpression: 'set attachmentUrl = :attachmentUrl',
           ExpressionAttributeValues: {
             ':attachmentUrl': attachmentUrl
           },
           ReturnValues: 'UPDATED_NEW'
-        }).promise()
+            }
+        
+        
+        await this.docClient.update(params).promise();
+    
+        
       }
 }

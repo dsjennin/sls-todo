@@ -29,7 +29,7 @@ export const handler = middy(
 
 
     logger.info(`User ${userId} updating group ${todoId} to be ${updatedTodo}`)
-    await updateTodo(updatedTodo, todoId, userId)
+    await updateTodo(updatedTodo, todoId)
   
     return {
       statusCode: 200,

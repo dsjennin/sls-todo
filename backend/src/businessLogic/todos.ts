@@ -2,10 +2,10 @@ import { TodoItem } from '../models/TodoItem'
 import { TodosAccess } from '../dataLayer/todosAccess'
 import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest'
-import { parseUserId } from '../auth/utils'
-import { createLogger } from '../utils/logger'
+//import { parseUserId } from '../auth/utils'
+//import { createLogger } from '../utils/logger'
 
-const logger = createLogger('todos')
+//const logger = createLogger('todos')
 
 const todosAccess = new TodosAccess()
 
@@ -13,7 +13,6 @@ const todosAccess = new TodosAccess()
 
 
 export async function getTodos(userId: string): Promise<TodoItem[]> {
-  logger.info(` GetTodos.... ${userId}`)
   return await todosAccess.getUserTodos(userId)
 }
 
@@ -23,18 +22,20 @@ export async function createTodo(createTodoRequest: CreateTodoRequest,userId: st
 }
 
 // updateTodo is the update interface of the update todo method
-export async function updateTodo(updatedTodo:UpdateTodoRequest,todoId:string, userId:string){
-	return await todosAccess.updateTodo(updatedTodo, todoId, userId)
+export async function updateTodo(updatedTodo:UpdateTodoRequest,todoId:string){
+	return await todosAccess.updateTodo(todoId, updatedTodo )
 }
 
 // deleteTodo is the interface of the delete method of todo
-export async function deleteTodo(userId:string, todoId:string) {
-	return await todosAccess.deleteTodo(userId, todoId)
+export async function deleteTodo(todoId:string) {
+	return await todosAccess.deleteTodo(todoId)
 }
 
 
-export async function updateUrl(todoId: string, attachmentUrl: string, jwtToken: string): Promise<void> {
+export async function updateUrl(todoId: string, attachmentUrl: string): Promise<void> {
 
-  const userId = parseUserId(jwtToken)
-  return await todosAccess.updateTodoUrl(todoId, userId, attachmentUrl)
+ // const userId = parseUserId(jwtToken)
+  //logger.info(`Update URL  user = ${userId} `);
+
+  return await todosAccess.updateTodoUrl(todoId,  attachmentUrl)
 }

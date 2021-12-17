@@ -14,10 +14,10 @@ export const handler = middy(
 
   
     logger.info('delete event', { event })
-    const authorization = event.headers.Authorization
-    const split = authorization.split(' ')
-    const jwtToken = split[1]
-    await deleteTodo(todoId, jwtToken)
+    // const authorization = event.headers.Authorization
+    // const split = authorization.split(' ')
+    // const jwtToken = split[1]
+    await deleteTodo(todoId)
     return {
       statusCode: 204,
       body: ''

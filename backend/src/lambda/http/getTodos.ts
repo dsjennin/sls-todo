@@ -16,7 +16,7 @@ const logger = createLogger('getToDos')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // Write your code here
-   
+    logger.info('get todos  event: ${JSON.stringify(event)}')
     const authorization = event.headers.Authorization
     const split = authorization.split(' ')
     const jwtToken = split[1]
