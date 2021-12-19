@@ -12,20 +12,15 @@ plugins:
 custom:
   serverless-iam-roles-per-function:
     defaultInherit: true
+  models:
+     - name: CreateTodoRequest
+       contentType: application/json
+       schema: ${file(models/create-todo-request.json)}
+     - name: UpdateTodoRequest
+       contentType: application/json
+       schema: ${file(models/update-todo-request.json)}
 
- # documentation:
- #   api:
- #     info:
- #       version: v1.0.0
- #       title: Todo API 
- #       description: Serverless application for creating todos
- #   models:
- #     - name: CreateTodoRequest
- #       contentType: application/json
- #       schema: ${file(models/create-todo-request.json)}
- #     - name: UpdateTodoRequest
- #       contentType: application/json
- #       schema: ${file(models/update-todo-request.json)}
+
 
 provider:
   name: aws
@@ -37,6 +32,7 @@ provider:
   tracing:
     lambda: true
     apiGateway: true
+
 
   iamRoleStatements:
     - Effect: Allow
@@ -113,11 +109,11 @@ functions:
           cors: true
           auth: Auth
           reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Create a new todo
-            description: Create a new todo
-            requestModels:
-              "application/json": CreateTodoRequest
+          request:
+            schema:
+              application/json: ${file(models/create-todo-request.json)}
+            # requestModels:
+            #   "application/json": CreateTodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -154,11 +150,11 @@ functions:
           cors: true
           auth: Auth
           reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Update todo
-            description: Update todo
-            requestModels:
-              "application/json": UpdateTodoRequest
+          request:
+            schema:
+              application/json: ${file(models/update-todo-request.json)}
+            # requestModels:
+            #   "application/json": UpdateTodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -347,3 +343,4 @@ resources:
                 - s3:PutObject
               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+
