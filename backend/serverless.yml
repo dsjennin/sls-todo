@@ -7,7 +7,8 @@ plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
   - serverless-reqvalidator-plugin
-  #- serverless-aws-documentation
+  - serverless-aws-documentation
+  - serverless-plugin-tracing
 
 custom:
   serverless-iam-roles-per-function:
@@ -19,6 +20,8 @@ custom:
      - name: UpdateTodoRequest
        contentType: application/json
        schema: ${file(models/update-todo-request.json)}
+  topicName: todostopic-${self:provider.stage}
+  #topicPublisher: sls-enhanced-todo-dev-sns
 
 
 
@@ -53,15 +56,22 @@ provider:
         - s3:GetObject
         - s3:putObject
       Resource: "arn:aws:s3:::${self:provider.environment.IMAGES_BUCKET}/*"
+    - Effect: Allow
+      Action:
+        - SNS:Publish
+      Resource: { "Fn::Join" : ["", ["arn:aws:sns:us-east-1:484412911256:todostopic-dev" ] ]  }  
   # Use these variables in the functions and resouorces section below. For example,
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
     TODOS_TABLE: todos-${self:provider.stage}
+    TOPIC_NAME:       todostopic-${self:provider.stage}
+    SNS_ARN: arn:aws:sns:us-east-1:484412911256:todostopic-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
     USER_ID_INDEX: UserIdIndex
     IMAGES_BUCKET: todos-dsj-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_JWKS_URL: https://bintech-dev.us.auth0.com/.well-known/jwks.json
+    
 
 functions:
   Auth:
@@ -297,6 +307,8 @@ resources:
           - AttributeName: createdAt
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
         TableName: ${self:provider.environment.TODOS_TABLE}
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.USER_ID_INDEX}
@@ -343,4 +355,29 @@ resources:
                 - s3:PutObject
               Resource: 'arn:aws:s3:::${self:provider.environment.IMAGES_BUCKET}/*'
         Bucket: !Ref AttachmentsBucket
+
+    TodosTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: Todos channel topic
+        TopicName: ${self:custom.topicName}
+
+    # SNSTopicPolicy:
+    #  Type: AWS::SNS::TopicPolicy
+    #  Properties:
+    #    PolicyDocument:
+    #      Version: "2012-10-17"
+    #      Statement:
+    #        - Effect: Allow
+    #          Principal:
+    #            AWS: "*"
+    #          Action: sns:Publish
+    #          Resource:
+    #            !Ref TodosTopic
+    #          Condition:
+    #            ArnLike:
+    #              AWS:SourceArn: arn:aws:sns:us-east-1:484412911256:todostopic-dev
+    #    Topics:
+    #      - !Ref TodosTopic
+          
 
