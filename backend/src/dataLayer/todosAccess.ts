@@ -5,10 +5,20 @@ import { CreateTodoRequest } from '../requests/CreateTodoRequest';
 import { createLogger } from '../utils/logger'
 const uuid = require('uuid/v4')
 import * as AWS from 'aws-sdk'
+import { SNSAccess } from './snsAccess';
 
 
 const logger = createLogger('todosDataAccess');
 
+const sns = new AWS.SNS;
+const snsArn = process.env.SNS_ARN
+//const snsArn = 'arn:aws:sns:us-east-1:484412911256:todostopic-dev'
+const topic = process.env.TOPIC_NAME
+//const topic = 'todostopic-dev'
+
+
+
+const mySns = new SNSAccess(sns, snsArn, topic)
 
 export class TodosAccess{
     constructor(
@@ -44,7 +54,7 @@ export class TodosAccess{
             TableName: this.todosTable,
             Item: item
         }).promise()
-
+        mySns.publishNewTodoMessage(item.name)
         return item
     }
 
@@ -85,6 +95,7 @@ export class TodosAccess{
           }
         };
         await this.docClient.update(params).promise();
+        mySns.publishDoneTodoMessage(updatedTodo.name)
     
     return updatedTodo
   }
