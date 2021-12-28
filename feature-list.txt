@@ -1,0 +1,15 @@
+
+-TODO: Testing (Unit and Integeration)
+
+-TODO: Elastic Search(For Logs storage)
+-TODO: Full-text Search (search feature for todo)
+
+
+-TODO: CloudWatch Event to ElasticSearch (flow) for errors and warnings
+
+-TODO: Database Stream for new entry -> email (flow)
+-TODO: Reminder feature SNS (When todo completed mail for progress)
+-TODO: SNS
+
+
+-TODO: Readme Update
