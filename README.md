@@ -1,5 +1,13 @@
 # Serverless TODO
 
+# Capstone Features Added:
+
+* Added new Lambda function to count active TODO items for a user (/getusertodocount)
+* Updated UI to show Active TODO item counts - screen shots included in the images folder
+* Added SNS email notification for created and completed TODO items.   Subscription is added via SNS console, so screenshots  included in images folder.   
+
+
+
 To implement this project, you need to implement a simple TODO application using AWS Lambda and Serverless framework. Search for all comments starting with the `TODO:` in the code to find the placeholders that you need to implement.
 
 # Functionality of the application
