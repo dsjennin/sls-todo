@@ -40,6 +40,23 @@ export class TodosAccess{
         return result.Items as TodoItem[]
     }
 
+
+
+    async getUserTodoCount(userId: string): Promise<number>{
+      logger.info(`Step 1 GetUserTodos.... ${userId}`)
+      const result = await this.docClient.query({
+          TableName: this.todosTable,
+          IndexName: this.userIdIndex,
+          KeyConditionExpression: 'userId = :userId',
+          FilterExpression: 'done = :done',
+          ExpressionAttributeValues:{
+              ':userId':userId,
+              ':done': false
+          }
+      }).promise()
+      return result.Items.length
+  }
+
     async createTodo(request: CreateTodoRequest,userId: string): Promise<TodoItem>{
         const newId = uuid()
         const item = {} as TodoItem
