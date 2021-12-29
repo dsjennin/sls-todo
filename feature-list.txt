@@ -1,15 +1,13 @@
-
--TODO: Testing (Unit and Integeration)
-
--TODO: Elastic Search(For Logs storage)
--TODO: Full-text Search (search feature for todo)
+https://knowledge.udacity.com/questions/698714
 
 
--TODO: CloudWatch Event to ElasticSearch (flow) for errors and warnings
+-TODO: Use SNS to Notify User when a Todo has been completed
+    - Step 1 create a SNS topic
+    - Step 2 
 
--TODO: Database Stream for new entry -> email (flow)
--TODO: Reminder feature SNS (When todo completed mail for progress)
--TODO: SNS
+
+
+-TODO: Add  lambda that gets the amount of active TODOs for a user and updated the web app to display that number to the user (it updates whenever the user checks or unchecks a TODO)
 
 
 -TODO: Readme Update

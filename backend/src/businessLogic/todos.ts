@@ -16,6 +16,10 @@ export async function getTodos(userId: string): Promise<TodoItem[]> {
   return await todosAccess.getUserTodos(userId)
 }
 
+
+export async function getUserTodoCount(userId: string): Promise<number> {
+  return await todosAccess.getUserTodoCount(userId)
+}
 // createTodo is the interface of the create method
 export async function createTodo(createTodoRequest: CreateTodoRequest,userId: string): Promise<TodoItem> {
 	return await todosAccess.createTodo(createTodoRequest,userId)

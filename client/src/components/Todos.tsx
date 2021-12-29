@@ -14,9 +14,10 @@ import {
   Loader
 } from 'semantic-ui-react'
 
-import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
+import { createTodo, deleteTodo, getTodos, patchTodo,getUserTodoCount } from '../api/todos-api'
 import Auth from '../auth/Auth'
 import { Todo } from '../types/Todo'
+import { Count} from '../types/Count'
 
 interface TodosProps {
   auth: Auth
@@ -27,13 +28,15 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  totalCount: Count
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    totalCount: {count: 0}
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -51,9 +54,12 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         name: this.state.newTodoName,
         dueDate
       })
+      const todoCount = await getUserTodoCount(this.props.auth.getIdToken())
+      console.log ("to do count: " + todoCount.count)
       this.setState({
         todos: [...this.state.todos, newTodo],
-        newTodoName: ''
+        newTodoName: '',
+        totalCount: todoCount
       })
     } catch {
       alert('Todo creation failed')
@@ -63,8 +69,11 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   onTodoDelete = async (todoId: string) => {
     try {
       await deleteTodo(this.props.auth.getIdToken(), todoId)
+      const todoCount = await getUserTodoCount(this.props.auth.getIdToken())
+      console.log ("to do count: " + todoCount.count)
       this.setState({
-        todos: this.state.todos.filter(todo => todo.todoId !== todoId)
+        todos: this.state.todos.filter(todo => todo.todoId !== todoId),
+        totalCount: todoCount
       })
     } catch {
       alert('Todo deletion failed')
@@ -74,37 +83,50 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   onTodoCheck = async (pos: number) => {
     try {
       const todo = this.state.todos[pos]
+    
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
         done: !todo.done
       })
+      const todoCount = await getUserTodoCount(this.props.auth.getIdToken())
+      console.log ("to do count: " + todoCount.count)
       this.setState({
         todos: update(this.state.todos, {
           [pos]: { done: { $set: !todo.done } }
-        })
+        }),
+        totalCount: todoCount
       })
     } catch {
-      alert('Todo deletion failed')
+      alert('Todo complete failed')
     }
   }
 
   async componentDidMount() {
     try {
       const todos = await getTodos(this.props.auth.getIdToken())
+      const todoCount = await getUserTodoCount(this.props.auth.getIdToken())
+      console.log ("to do count: " + todoCount.count)
       this.setState({
         todos,
-        loadingTodos: false
+        loadingTodos: false,
+        totalCount: todoCount
       })
     } catch (e) {
       alert(`Failed to fetch todos: ${e.message}`)
     }
   }
 
+  
+
+
+
   render() {
     return (
+      
       <div>
-        <Header as="h1">TODOs</Header>
+  
+        <Header as="h1">TODOs - Active Count: {this.state.totalCount.count}  </Header> 
 
         {this.renderCreateTodoInput()}
 
@@ -158,6 +180,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   renderTodosList() {
     return (
+      
       <Grid padded>
         {this.state.todos.map((todo, pos) => {
           return (

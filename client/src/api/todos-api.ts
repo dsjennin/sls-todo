@@ -1,5 +1,6 @@
 import { apiEndpoint } from '../config'
 import { Todo } from '../types/Todo';
+import { Count } from '../types/Count';
 import { CreateTodoRequest } from '../types/CreateTodoRequest';
 import Axios from 'axios'
 import { UpdateTodoRequest } from '../types/UpdateTodoRequest';
@@ -16,6 +17,21 @@ export async function getTodos(idToken: string): Promise<Todo[]> {
   console.log('Todos:', response.data)
   return response.data.items
 }
+
+export async function getUserTodoCount(idToken: string): Promise<Count> {
+  console.log('Fetching todos count')
+
+  const response = await Axios.get(`${apiEndpoint}/todocount`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+  })
+  console.log('Todos:', response.data)
+  return response.data
+}
+
+
 
 export async function createTodo(
   idToken: string,

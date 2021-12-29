@@ -110,6 +110,40 @@ functions:
         Resource:
           - "*"
 
+  GetUserTodoCount:
+    handler: src/lambda/http/getUserTodoCount.handler
+    events:
+      - http:
+          method: get
+          path: todocount
+          cors: true
+          auth: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/${self:provider.environment.TODOS_CREATED_AT_INDEX}
+      - Effect: Allow
+        Action:
+          - dynamodb:Query
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:GetSamplingRules
+          - xray:GetSamplingTargets
+          - xray:GetSamplingStatisticSummaries
+          - xray:BatchGetTraces
+          - xray:GetServiceGraph
+          - xray:GetTraceGraph
+          - xray:GetTraceSummaries
+          - xray:GetGroups
+          - xray:GetGroup
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - "*"
+
+
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -362,22 +396,4 @@ resources:
         DisplayName: Todos channel topic
         TopicName: ${self:custom.topicName}
 
-    # SNSTopicPolicy:
-    #  Type: AWS::SNS::TopicPolicy
-    #  Properties:
-    #    PolicyDocument:
-    #      Version: "2012-10-17"
-    #      Statement:
-    #        - Effect: Allow
-    #          Principal:
-    #            AWS: "*"
-    #          Action: sns:Publish
-    #          Resource:
-    #            !Ref TodosTopic
-    #          Condition:
-    #            ArnLike:
-    #              AWS:SourceArn: arn:aws:sns:us-east-1:484412911256:todostopic-dev
-    #    Topics:
-    #      - !Ref TodosTopic
-          
 
