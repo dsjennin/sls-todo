@@ -11,7 +11,8 @@ export default class Auth {
     clientID: authConfig.clientId,
     redirectUri: authConfig.callbackUrl,
     responseType: 'token id_token',
-    scope: 'openid profile email'
+    scope: 'openid profile email',
+    cacheLocation: 'localstorage'
   });
 
   constructor(history) {
@@ -66,6 +67,8 @@ export default class Auth {
     this.history.replace('/');
   }
 
+
+
   renewSession() {
     this.auth0.checkSession({}, (err, authResult) => {
        if (authResult && authResult.accessToken && authResult.idToken) {
@@ -98,7 +101,8 @@ export default class Auth {
   isAuthenticated() {
     // Check whether the current time is past the
     // access token's expiry time
-    let expiresAt = this.expiresAt;
-    return new Date().getTime() < expiresAt;
+    //let expiresAt = this.expiresAt;
+    //return new Date().getTime() < expiresAt;
+    return (localStorage.getItem('isLoggedIn'))
   }
 }
