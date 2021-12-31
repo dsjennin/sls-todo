@@ -104,6 +104,9 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
 
   async componentDidMount() {
     try {
+      
+      if (!this.props.auth.getIdToken()) this.props.auth.login()
+
       const todos = await getTodos(this.props.auth.getIdToken())
       const todoCount = await getUserTodoCount(this.props.auth.getIdToken())
       console.log ("to do count: " + todoCount.count)
@@ -113,7 +116,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         totalCount: todoCount
       })
     } catch (e) {
-      alert(`Failed to fetch todos: ${e.message}`)
+      alert(`Failed to fetch todos from UI: ${e.message}`)
     }
   }
 

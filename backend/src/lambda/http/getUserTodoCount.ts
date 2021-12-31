@@ -8,7 +8,7 @@ import { cors } from 'middy/middlewares'
 import { getUserTodoCount } from '../../businessLogic/todos'
 import { createLogger } from '../../utils/logger'
 
-//import { getUserId } from '../utils';
+import { getUserId } from '../utils';
 
 // TODO: Get all TODO items for a current user
 const logger = createLogger('getToDos')
@@ -16,11 +16,17 @@ const logger = createLogger('getToDos')
 export const handler = middy(
   async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // Write your code here
-    logger.info('get todos  event: ${JSON.stringify(event)}')
-    const authorization = event.headers.Authorization
-    const split = authorization.split(' ')
-    const jwtToken = split[1]
-    const count = await getUserTodoCount(jwtToken)
+    logger.info('Step 1 get todos  event: ${JSON.stringify(event)}')
+    // const authorization = event.headers.Authorization
+    // const split = authorization.split(' ')
+    // const jwtToken = split[1]
+    const userId = getUserId(event)
+
+    logger.info(` Lambda - Step 2 Get To DO Count for user:  ${userId}`) 
+
+
+
+    const count = await getUserTodoCount(userId)
     logger.info(`Get all TODO items for current user.... ${count}`)
     return {
       statusCode: 200,
