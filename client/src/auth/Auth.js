@@ -96,6 +96,11 @@ export default class Auth {
     // Remove isLoggedIn flag from localStorage
     localStorage.removeItem('isLoggedIn');
 
+    // Remove tokens
+    localStorage.removeItem('accessToken', this.accessToken)
+    localStorage.removeItem('idToken', this.idToken)
+    localStorage.removeItem('expiresAt', this.expiresAt)
+
     this.auth0.logout({
       return_to: window.location.origin
     });
